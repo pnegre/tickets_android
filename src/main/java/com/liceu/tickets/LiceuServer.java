@@ -1,5 +1,6 @@
 package com.liceu.tickets;
 
+import android.net.Uri;
 import android.util.Log;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -16,9 +17,12 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.CookieHandler;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -60,6 +64,18 @@ class LiceuServerImp implements LiceuServer {
         client = null;
     }
 
+    private String getCookie(String name) {
+        CookieManager cm = (CookieManager) CookieHandler.getDefault();
+        CookieStore cs = cm.getCookieStore();
+        List<HttpCookie> list = cs.getCookies();
+
+        for (HttpCookie ck: list) {
+            if (ck.getName().equals(name))
+                return ck.getValue();
+        }
+        return null;
+    }
+
     // Retorna el httpclient. Si no està establerta la connexió, l'estableix
     private void getConnection() throws ServerError {
         // Primer comprovem si ja tenim el client en caché
@@ -91,19 +107,36 @@ class LiceuServerImp implements LiceuServer {
             client = (HttpsURLConnection) url.openConnection();
             client.getContent();
 
-            CookieStore cs = cm.getCookieStore();
-            List<HttpCookie> list = cs.getCookies();
-            String csrf, sessid;
-
-            for (HttpCookie ck: list) {
-                if (ck.getName().equals("csrftoken"))
-                    csrf = ck.getValue();
-                else if (ck.getName().equals("sessionid"))
-                    sessid = ck.getValue();
-            }
+            String csrf = getCookie("csrftoken");
+            String sessid = getCookie("sessionid");
 
             // Ara ja tenim dins csrf i sessid els valors de les cookies necessàries per
             // fer el post del login
+
+            client = (HttpsURLConnection) url.openConnection();
+            client.setRequestMethod("POST");
+            client.setDoOutput(true);
+
+            Uri.Builder builder = new Uri.Builder()
+                    .appendQueryParameter("csrftoken", csrf)
+                    .appendQueryParameter("username", username)
+                    .appendQueryParameter("password", password);
+            String query = builder.build().getEncodedQuery();
+
+            Log.v(TAG, query);
+
+            OutputStream os = client.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(query);
+            writer.flush();
+            writer.close();
+            os.close();
+
+            client.getContent();
+            if (client.getResponseCode() == 200) {
+
+            }
 
         } catch (IOException e) {
             Log.v(TAG, "ERRORRRRRRR");
