@@ -2,24 +2,10 @@ package com.liceu.tickets;
 
 import android.net.Uri;
 import android.util.Log;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.StatusLine;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.cookie.Cookie;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -28,11 +14,9 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
-import java.net.HttpURLConnection;
-import java.net.Proxy;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,19 +24,19 @@ import javax.net.ssl.HttpsURLConnection;
 
 
 class ServerError extends Exception {
-};
+}
 
 
 interface LiceuServer {
-    public void init(String u, String p);
-
-    public String readJson(String url) throws ServerError;
-
-    public void doPost(String url, Map<String, String> vars) throws ServerError;
+    void init(String u, String p);
+    String readJson(String url) throws ServerError;
+    void doPost(String url, Map<String, String> vars) throws ServerError;
 }
 
 class LiceuServerImp implements LiceuServer {
     static String TAG = "LiceuServer";
+    static String LOGINURL = "https://apps.esliceu.com/auth/login2/";
+
     String username = null;
     String password = null;
     Boolean clientValid = false;
@@ -104,7 +88,7 @@ class LiceuServerImp implements LiceuServer {
             CookieManager cm = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
             CookieHandler.setDefault(cm);
             Log.v(TAG, "Beginning authorization...");
-            URL url = new URL("https://apps.esliceu.com/auth/login2/");
+            URL url = new URL(LOGINURL);
             HttpsURLConnection client = (HttpsURLConnection) url.openConnection();
             client.getContent();
 
@@ -114,25 +98,14 @@ class LiceuServerImp implements LiceuServer {
             // Ara ja tenim dins csrf i sessid els valors de les cookies necessàries per
             // fer el post del login
 
-            url = new URL("https://apps.esliceu.com/auth/login2/");
+            Map<String, String> params = new HashMap<>();
+            params.put("csrfmiddlewaretoken", csrf);
+            params.put("username", username);
+            params.put("password", password);
+            url = new URL(LOGINURL);
             client = (HttpsURLConnection) url.openConnection();
-            client.setRequestMethod("POST");
-            client.setDoOutput(true);
-            client.setRequestProperty("Referer", "https://apps.esliceu.com/auth/login2/");
-
-            Uri.Builder builder = new Uri.Builder()
-                    .appendQueryParameter("csrfmiddlewaretoken", csrf)
-                    .appendQueryParameter("username", username)
-                    .appendQueryParameter("password", password);
-            String query = builder.build().getEncodedQuery();
-
-            OutputStream os = client.getOutputStream();
-            BufferedWriter writer = new BufferedWriter(
-                    new OutputStreamWriter(os, "UTF-8"));
-            writer.write(query);
-            writer.flush();
-            writer.close();
-            os.close();
+            client.setRequestProperty("Referer", LOGINURL);
+            client = doPostReally(client, params);
 
             client.getContent();
             if (client.getResponseCode() == 200) {
@@ -169,7 +142,7 @@ class LiceuServerImp implements LiceuServer {
 
             String line;
             while ((line = br.readLine()) != null)
-                sb.append(line + '\n');
+                sb.append(line).append('\n');
 
             return sb.toString();
 
@@ -180,9 +153,39 @@ class LiceuServerImp implements LiceuServer {
         throw new ServerError();
     }
 
-    public void doPost(String url, Map<String, String> vars) throws ServerError {
-        getConnection();
+    private HttpsURLConnection doPostReally(HttpsURLConnection client, Map<String, String> vars) throws ServerError {
+        try {
+            client.setRequestMethod("POST");
+            client.setDoOutput(true);
+
+            Uri.Builder builder = new Uri.Builder();
+
+            for (Map.Entry<String, String> e : vars.entrySet())
+                builder.appendQueryParameter(e.getKey(), e.getValue());
+
+            String query = builder.build().getEncodedQuery();
+
+            OutputStream os = client.getOutputStream();
+            BufferedWriter writer = new BufferedWriter(
+                    new OutputStreamWriter(os, "UTF-8"));
+            writer.write(query);
+            writer.flush();
+            writer.close();
+            os.close();
+            return client;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         throw new ServerError();
+
+    }
+
+    public void doPost(String urln, Map<String, String> vars) throws ServerError {
+
+        throw new ServerError();
+
     }
 }
 
