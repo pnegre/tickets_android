@@ -29,6 +29,7 @@ import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
+import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
@@ -113,12 +114,17 @@ class LiceuServerImp implements LiceuServer {
             // Ara ja tenim dins csrf i sessid els valors de les cookies necessàries per
             // fer el post del login
 
+            url = new URL("https://apps.esliceu.com/auth/login2/");
             client = (HttpsURLConnection) url.openConnection();
             client.setRequestMethod("POST");
             client.setDoOutput(true);
+            client.setRequestProperty("Referer", "https://apps.esliceu.com/auth/login2/");
+
+            client.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
+            client.setRequestProperty("Accept","*/*");
 
             Uri.Builder builder = new Uri.Builder()
-                    .appendQueryParameter("csrftoken", csrf)
+                    .appendQueryParameter("csrfmiddlewaretoken", csrf)
                     .appendQueryParameter("username", username)
                     .appendQueryParameter("password", password);
             String query = builder.build().getEncodedQuery();
@@ -135,7 +141,17 @@ class LiceuServerImp implements LiceuServer {
 
             client.getContent();
             if (client.getResponseCode() == 200) {
+                // Comprovem que la sessionid ha canviat
+                // Si no ha canviat és que no ha anat bé l'autorització
+                String sessid2 = getCookie("sessionid");
+                if (sessid2 == null || sessid2.equals(sessid))
+                    throw new ServerError();
 
+                Log.v(TAG, "AUTHORIZED!");
+//                client = myclient;
+//                lastDate = new Date();
+//                return myclient;
+//                Log.v(TAG,"AUTHORIZED!!!!!!!!!!!!!!!!!!");
             }
 
         } catch (IOException e) {
