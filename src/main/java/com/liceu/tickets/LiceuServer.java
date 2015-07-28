@@ -55,14 +55,14 @@ class LiceuServerImp implements LiceuServer {
     static String TAG = "LiceuServer";
     String username = null;
     String password = null;
-    HttpsURLConnection client = null;
+    Boolean clientValid = false;
     Date lastDate = null;
 
 
     public void init(String u, String p) {
         username = u;
         password = p;
-        client = null;
+        clientValid = false;
     }
 
     private String getCookie(String name) {
@@ -81,7 +81,7 @@ class LiceuServerImp implements LiceuServer {
     private void getConnection() throws ServerError {
         // Primer comprovem si ja tenim el client en caché
         // També si ha passat manco de mitja hora des de la darrera vegada.
-        if (client != null) {
+        if (clientValid) {
             Date now = new Date();
             Long dif = now.getTime() - lastDate.getTime();
             Log.v(TAG, "Client object exists. Lastdate=" + String.valueOf(dif));
@@ -105,7 +105,7 @@ class LiceuServerImp implements LiceuServer {
             CookieHandler.setDefault(cm);
             Log.v(TAG, "Beginning authorization...");
             URL url = new URL("https://apps.esliceu.com/auth/login2/");
-            client = (HttpsURLConnection) url.openConnection();
+            HttpsURLConnection client = (HttpsURLConnection) url.openConnection();
             client.getContent();
 
             String csrf = getCookie("csrftoken");
@@ -120,16 +120,11 @@ class LiceuServerImp implements LiceuServer {
             client.setDoOutput(true);
             client.setRequestProperty("Referer", "https://apps.esliceu.com/auth/login2/");
 
-            client.setRequestProperty("User-Agent","Mozilla/5.0 ( compatible ) ");
-            client.setRequestProperty("Accept","*/*");
-
             Uri.Builder builder = new Uri.Builder()
                     .appendQueryParameter("csrfmiddlewaretoken", csrf)
                     .appendQueryParameter("username", username)
                     .appendQueryParameter("password", password);
             String query = builder.build().getEncodedQuery();
-
-            Log.v(TAG, query);
 
             OutputStream os = client.getOutputStream();
             BufferedWriter writer = new BufferedWriter(
@@ -147,11 +142,10 @@ class LiceuServerImp implements LiceuServer {
                 if (sessid2 == null || sessid2.equals(sessid))
                     throw new ServerError();
 
+                clientValid = true;
+                lastDate = new Date();
                 Log.v(TAG, "AUTHORIZED!");
-//                client = myclient;
-//                lastDate = new Date();
-//                return myclient;
-//                Log.v(TAG,"AUTHORIZED!!!!!!!!!!!!!!!!!!");
+                return;
             }
 
         } catch (IOException e) {
@@ -159,9 +153,8 @@ class LiceuServerImp implements LiceuServer {
             e.printStackTrace();
         }
 
-        client = null;
+        clientValid = false;
         throw new ServerError();
-
     }
 
     public String readJson(String url) throws ServerError {
