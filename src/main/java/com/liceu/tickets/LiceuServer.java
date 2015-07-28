@@ -37,21 +37,22 @@ class LiceuServerImp implements LiceuServer {
     static String TAG = "LiceuServer";
     static String LOGINURL = "https://apps.esliceu.com/auth/login2/";
 
-    String username = null;
-    String password = null;
-    Boolean clientValid = false;
-    Date lastDate = null;
-
+    private String username = null;
+    private String password = null;
+    private Boolean clientValid = false;
+    private Date lastDate = null;
+    private CookieManager cookieManager;
 
     public void init(String u, String p) {
         username = u;
         password = p;
         clientValid = false;
+        cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+        CookieHandler.setDefault(cookieManager);
     }
 
     private String getCookie(String name) {
-        CookieManager cm = (CookieManager) CookieHandler.getDefault();
-        CookieStore cs = cm.getCookieStore();
+        CookieStore cs = cookieManager.getCookieStore();
         List<HttpCookie> list = cs.getCookies();
 
         for (HttpCookie ck: list) {
@@ -61,7 +62,7 @@ class LiceuServerImp implements LiceuServer {
         return null;
     }
 
-    // Retorna el httpclient. Si no està establerta la connexió, l'estableix
+    // S'assegura que la connexió és vàlida i si fa falta, l'estableix
     private void getConnection() throws ServerError {
         // Primer comprovem si ja tenim el client en caché
         // També si ha passat manco de mitja hora des de la darrera vegada.
@@ -85,8 +86,6 @@ class LiceuServerImp implements LiceuServer {
         // Aquesta darrera variable té el mateix valor que el nom de la cookie csrftoken
 
         try {
-            CookieManager cm = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
-            CookieHandler.setDefault(cm);
             Log.v(TAG, "Beginning authorization...");
             URL url = new URL(LOGINURL);
             HttpsURLConnection client = (HttpsURLConnection) url.openConnection();
@@ -105,8 +104,7 @@ class LiceuServerImp implements LiceuServer {
             url = new URL(LOGINURL);
             client = (HttpsURLConnection) url.openConnection();
             client.setRequestProperty("Referer", LOGINURL);
-            client = doPostReally(client, params);
-
+            doPostReally(client, params);
             client.getContent();
             if (client.getResponseCode() == 200) {
                 // Comprovem que la sessionid ha canviat
@@ -153,7 +151,7 @@ class LiceuServerImp implements LiceuServer {
         throw new ServerError();
     }
 
-    private HttpsURLConnection doPostReally(HttpsURLConnection client, Map<String, String> vars) throws ServerError {
+    private void doPostReally(HttpsURLConnection client, Map<String, String> vars) throws ServerError {
         try {
             client.setRequestMethod("POST");
             client.setDoOutput(true);
@@ -172,7 +170,7 @@ class LiceuServerImp implements LiceuServer {
             writer.flush();
             writer.close();
             os.close();
-            return client;
+            return;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -183,9 +181,22 @@ class LiceuServerImp implements LiceuServer {
     }
 
     public void doPost(String urln, Map<String, String> vars) throws ServerError {
+        try {
+            URL url = new URL(urln);
+            HttpsURLConnection client = (HttpsURLConnection) url.openConnection();
+            client.setRequestProperty("Referer", LOGINURL);
+            String csrf = getCookie("csrftoken");
+            vars.put("csrfmiddlewaretoken", csrf);
+            doPostReally(client, vars);
+            client.getContent();
+            if (client.getResponseCode() != 200)
+                throw new ServerError();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         throw new ServerError();
-
     }
 }
 
