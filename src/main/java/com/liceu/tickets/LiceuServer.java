@@ -6,6 +6,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.StatusLine;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -18,10 +19,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.CookieHandler;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.CookieStore;
+import java.net.HttpCookie;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 
 class ServerError extends Exception {
@@ -36,8 +46,88 @@ interface LiceuServer {
     public void doPost(String url, Map<String, String> vars) throws ServerError;
 }
 
-
 class LiceuServerImp implements LiceuServer {
+    static String TAG = "LiceuServer";
+    String username = null;
+    String password = null;
+    HttpsURLConnection client = null;
+    Date lastDate = null;
+
+
+    public void init(String u, String p) {
+        username = u;
+        password = p;
+        client = null;
+    }
+
+    // Retorna el httpclient. Si no està establerta la connexió, l'estableix
+    private void getConnection() throws ServerError {
+        // Primer comprovem si ja tenim el client en caché
+        // També si ha passat manco de mitja hora des de la darrera vegada.
+        if (client != null) {
+            Date now = new Date();
+            Long dif = now.getTime() - lastDate.getTime();
+            Log.v(TAG, "Client object exists. Lastdate=" + String.valueOf(dif));
+            if (dif < 1800000) {
+                Log.v(TAG, "Client is valid. Returning from cache");
+                lastDate = now;
+                return;
+            }
+        }
+
+        // La idea és la següent:
+        //
+        // Primer fem un get a https://apps.esliceu.com/auth/login
+        // Això ens serveix per emmagazemar les cookies. N'hi ha dues: sessionid i csrftoken
+        // Després, hem de fer un post a https://apps.esliceu.com/auth/login, transmitint també les cookies anteriors
+        // Dins aquest post hem d'especificar les variables "username", "password" i "csrfmiddlewaretoken"
+        // Aquesta darrera variable té el mateix valor que el nom de la cookie csrftoken
+
+        try {
+            CookieManager cm = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+            CookieHandler.setDefault(cm);
+            Log.v(TAG, "Beginning authorization...");
+            URL url = new URL("https://apps.esliceu.com/auth/login2/");
+            client = (HttpsURLConnection) url.openConnection();
+            client.getContent();
+
+            CookieStore cs = cm.getCookieStore();
+            List<HttpCookie> list = cs.getCookies();
+            String csrf, sessid;
+
+            for (HttpCookie ck: list) {
+                if (ck.getName().equals("csrftoken"))
+                    csrf = ck.getValue();
+                else if (ck.getName().equals("sessionid"))
+                    sessid = ck.getValue();
+            }
+
+            // Ara ja tenim dins csrf i sessid els valors de les cookies necessàries per
+            // fer el post del login
+
+        } catch (IOException e) {
+            Log.v(TAG, "ERRORRRRRRR");
+            e.printStackTrace();
+        }
+
+        client = null;
+        throw new ServerError();
+
+    }
+
+    public String readJson(String url) throws ServerError {
+        getConnection();
+        throw new ServerError();
+    }
+
+    public void doPost(String url, Map<String, String> vars) throws ServerError {
+        getConnection();
+        throw new ServerError();
+    }
+}
+
+
+class LiceuServerImp_vell implements LiceuServer {
     static String TAG = "LiceuServer";
     String username = null;
     String password = null;
