@@ -192,6 +192,8 @@ class LiceuServerImp implements LiceuServer {
             if (client.getResponseCode() != 200)
                 throw new ServerError();
 
+            return;
+
         } catch (Exception e) {
             e.printStackTrace();
         }

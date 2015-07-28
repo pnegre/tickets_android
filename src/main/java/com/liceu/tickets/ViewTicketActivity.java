@@ -94,6 +94,7 @@ public class ViewTicketActivity extends Activity {
                 tapp.server.doPost(url, vars);
                 tapp.database.removeTicket(ticket.id);
             } catch (ServerError e) {
+                e.printStackTrace();
             }
 
             return null;
