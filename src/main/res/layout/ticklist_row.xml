@@ -5,20 +5,29 @@
 	android:layout_height="fill_parent"
 	>
 
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/ticktext"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent"
-	android:padding="10dp"
-	android:fontFamily="sans-serif-thin"
-	android:textSize="16sp" />
+
 
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
 	android:id="@+id/tickuser"
 	android:layout_width="fill_parent"
 	android:layout_height="fill_parent"
 	android:padding="10dp"
+	android:fontFamily="sans-serif"
+	android:layout_marginBottom="-15dp"
+	android:paddingBottom="0dp"
+	android:textSize="10sp" />
+
+
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/ticktext"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:padding="10dp"
 	android:fontFamily="sans-serif-thin"
-	android:textSize="12sp" />
+
+	android:layout_marginTop="0dp"
+	android:paddingTop="0dp"
+
+	android:textSize="16sp" />
 
 </LinearLayout>

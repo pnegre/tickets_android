@@ -8,6 +8,7 @@
 <ListView
 	android:id="@+id/commentslist"
 	android:layout_height="wrap_content"
+	android:fontFamily="sans-serif-thin"
 	android:layout_width="fill_parent"/>
 
 </LinearLayout>

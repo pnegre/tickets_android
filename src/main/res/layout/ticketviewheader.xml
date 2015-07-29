@@ -69,6 +69,7 @@
 	<LinearLayout
 		android:orientation="horizontal"
 		android:layout_width="fill_parent"
+		android:fontFamily="sans-serif-thin"
 		android:layout_height="wrap_content">
 
 		<Button

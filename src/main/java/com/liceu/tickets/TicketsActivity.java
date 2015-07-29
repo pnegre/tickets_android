@@ -116,8 +116,8 @@ public class TicketsActivity extends ListActivity {
             TextView tu = (TextView) v.findViewById(R.id.tickuser);
 
             String ttext;
-            if (tick.text.length() > 50)
-                ttext = tick.text.substring(0, 50);
+            if (tick.text.length() > 120)
+                ttext = tick.text.substring(0, 120);
             else
                 ttext = tick.text;
 
