@@ -78,6 +78,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:text="@string/tick_close_button"
+			android:fontFamily="sans-serif-thin"
 			/>
 
 		<Button
@@ -87,6 +88,7 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:text="@string/tick_sendcomm_button"
+			android:fontFamily="sans-serif-thin"
 			/>
 
 	</LinearLayout>
@@ -102,6 +104,7 @@
 	<CheckBox android:id="@+id/checkemail"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
+		android:fontFamily="sans-serif-thin"
 		android:text="@string/tick_sendemail_check" />
 
 
@@ -110,6 +113,7 @@
 		android:layout_width="fill_parent" 
 		android:layout_height="wrap_content" 
 		android:text=""
+		android:fontFamily="sans-serif-thin"
 		/>
 	
 
