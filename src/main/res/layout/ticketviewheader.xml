@@ -72,24 +72,48 @@
 		android:fontFamily="sans-serif-thin"
 		android:layout_height="wrap_content">
 
-		<Button
-			android:id="@+id/btclose"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
-			android:layout_weight="1"
-			android:text="@string/tick_close_button"
-			android:fontFamily="sans-serif-thin"
-			/>
+		<!--<Button-->
+			<!--android:id="@+id/btclose"-->
+			<!--android:layout_width="fill_parent"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_weight="1"-->
+			<!--android:text="@string/tick_close_button"-->
+			<!--android:fontFamily="sans-serif-thin"-->
+			<!--/>-->
 
-		<Button
-			android:id="@+id/btsend"
-			android:layout_toRightOf="@+id/btclose"
-			android:layout_width="fill_parent"
-			android:layout_height="wrap_content"
+		<ImageButton
+			android:id="@+id/btclose"
+			android:src="@drawable/delete"
+			android:layout_width="wrap_content"
+			android:layout_height="60dp"
+			android:height="10dp"
+			android:scaleType="fitCenter"
+			android:nestedScrollingEnabled="false"
+			android:adjustViewBounds="true"
 			android:layout_weight="1"
-			android:text="@string/tick_sendcomm_button"
-			android:fontFamily="sans-serif-thin"
-			/>
+			android:background="@null" />
+
+		<!--<Button-->
+			<!--android:id="@+id/btsend"-->
+			<!--android:layout_toRightOf="@+id/btclose"-->
+			<!--android:layout_width="fill_parent"-->
+			<!--android:layout_height="wrap_content"-->
+			<!--android:layout_weight="1"-->
+			<!--android:text="@string/tick_sendcomm_button"-->
+			<!--android:fontFamily="sans-serif-thin"-->
+			<!--/>-->
+
+		<ImageButton
+			android:id="@+id/btsend"
+			android:src="@drawable/note"
+			android:layout_width="wrap_content"
+			android:layout_height="60dp"
+			android:height="10dp"
+			android:scaleType="fitCenter"
+			android:nestedScrollingEnabled="false"
+			android:adjustViewBounds="true"
+			android:layout_weight="1"
+			android:background="@null" />
 
 	</LinearLayout>
 

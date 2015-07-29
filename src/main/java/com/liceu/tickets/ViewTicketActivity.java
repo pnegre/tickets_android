@@ -15,8 +15,8 @@ import java.util.Map;
 public class ViewTicketActivity extends Activity {
     TicketsApp tapp;
 
-    Button btclose;
-    Button btsend;
+    ImageButton btclose;
+    ImageButton btsend;
     TextView text;
     TextView reporter;
     TextView place;
@@ -45,8 +45,8 @@ public class ViewTicketActivity extends Activity {
         text = (TextView) findViewById(R.id.tickettext);
         reporter = (TextView) findViewById(R.id.reporter);
         place = (TextView) findViewById(R.id.place);
-        btclose = (Button) findViewById(R.id.btclose);
-        btsend = (Button) findViewById(R.id.btsend);
+        btclose = (ImageButton) findViewById(R.id.btclose);
+        btsend = (ImageButton) findViewById(R.id.btsend);
         tcomment = (EditText) findViewById(R.id.tcomment);
         checkemail = (CheckBox) findViewById(R.id.checkemail);
 
