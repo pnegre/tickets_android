@@ -14,18 +14,27 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-//import android.R;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TicketsActivity extends Activity {
     private DrawerLayout drawerLayout;
     private ListView drawerList;
+    List<String> list;
 
     @Override
     public void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
         setContentView(R.layout.main);
+
+        list = new ArrayList<>();
+        list.add("Preferències");
+        list.add("Refresca");
+        list.add("Nova incidència");
+
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
     }
 
 }
