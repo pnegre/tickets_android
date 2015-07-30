@@ -1,5 +1,6 @@
 package com.liceu.tickets;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
@@ -7,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.view.*;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -16,7 +18,19 @@ import android.widget.TextView;
 
 import java.util.List;
 
+public class TicketsActivity extends Activity {
+    private DrawerLayout drawerLayout;
+    private ListView drawerList;
 
+    @Override
+    public void onCreate(Bundle savedInstance) {
+        super.onCreate(savedInstance);
+        setContentView(R.layout.main);
+    }
+
+}
+
+/*
 public class TicketsActivity extends ListActivity {
     static String TAG = "TicketsActivity";
 
@@ -163,3 +177,4 @@ public class TicketsActivity extends ListActivity {
     }
 
 }
+*/
