@@ -32,6 +32,8 @@ public class TicketsActivity extends Activity {
         super.onCreate(savedInstance);
         setContentView(R.layout.main);
 
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         list = new ArrayList<>();
         list.add("Preferències");
         list.add("Refresca");
@@ -39,20 +41,31 @@ public class TicketsActivity extends Activity {
 
         drawerList = (ListView) findViewById(R.id.left_drawer);
         drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
-        drawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         lfragment = new TicketsListFragment();
         FragmentManager fragmentManager = getFragmentManager();
         fragmentManager.beginTransaction()
                 .replace(R.id.content_frame, lfragment)
                 .commit();
+
+        drawerList.setOnItemClickListener(new ListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                executeMenu(position);
+                drawerLayout.closeDrawer(drawerList);
+            }
+        });
     }
 
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+    private void executeMenu(int position) {
+        switch (position) {
+            case 0:
+                startActivity(new Intent(this, TicketsPreferences.class));
+                break;
 
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Log.v("AAAAAA", String.valueOf(position));
+            case 1:
+                lfragment.refreshData();
+                break;
         }
     }
 
@@ -82,6 +95,10 @@ public class TicketsActivity extends Activity {
             });
 
 
+        }
+
+        void refreshData() {
+            new ataskRefreshTickets().execute();
         }
 
         private void executeViewTicketActivity(int tickid) {
@@ -131,6 +148,42 @@ public class TicketsActivity extends Activity {
                 return v;
             }
         }
+
+
+        // ****************************************
+        // Async task for refreshing tickets screen
+        private class ataskRefreshTickets extends AsyncTask<Void, Void, Void> {
+            ProgressDialog pb;
+            boolean err = false;
+
+            protected void onPreExecute() {
+                pb = ProgressDialog.show(getActivity(), "", getString(R.string.wait), true);
+            }
+
+            protected Void doInBackground(Void... params) {
+                try {
+                    tapp.database.refreshDataFromServer(tapp.server);
+                } catch (ServerError e) {
+                    err = true;
+                }
+
+                return null;
+            }
+
+            protected void onPostExecute(Void param) {
+                pb.dismiss();
+                if (err) {
+                    AlertDialog alertDialog;
+                    alertDialog = new AlertDialog.Builder(getActivity()).create();
+                    alertDialog.setTitle("Error");
+                    alertDialog.setMessage(getString(R.string.errserver));
+                    alertDialog.show();
+                }
+
+                setMyListAdapter();
+            }
+        }
+
 
 
     }
