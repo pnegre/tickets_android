@@ -67,11 +67,17 @@ public class TicketsActivity extends Activity {
             lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                     Ticket t = (Ticket) getListView().getItemAtPosition(position);
-                    //executeViewTicketActivity(t.id);
+                    executeViewTicketActivity(t.id);
                 }
             });
 
 
+        }
+
+        private void executeViewTicketActivity(int tickid) {
+            Intent i = new Intent(getActivity(), ViewTicketActivity.class);
+            i.putExtra("tickid", tickid);
+            startActivity(i);
         }
 
         private void setMyListAdapter() {
