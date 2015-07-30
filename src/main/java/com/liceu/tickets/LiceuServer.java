@@ -47,8 +47,6 @@ class LiceuServerImp implements LiceuServer {
         username = u;
         password = p;
         clientValid = false;
-        cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
-        CookieHandler.setDefault(cookieManager);
     }
 
     private String getCookie(String name) {
@@ -86,6 +84,8 @@ class LiceuServerImp implements LiceuServer {
         // Aquesta darrera variable té el mateix valor que el nom de la cookie csrftoken
 
         try {
+            cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);
+            CookieHandler.setDefault(cookieManager);
             Log.v(TAG, "Beginning authorization...");
             URL url = new URL(LOGINURL);
             HttpsURLConnection client = (HttpsURLConnection) url.openConnection();
@@ -120,7 +120,6 @@ class LiceuServerImp implements LiceuServer {
             }
 
         } catch (IOException e) {
-            Log.v(TAG, "ERRORRRRRRR");
             e.printStackTrace();
         }
 
@@ -182,6 +181,7 @@ class LiceuServerImp implements LiceuServer {
 
     public void doPost(String urln, Map<String, String> vars) throws ServerError {
         try {
+            getConnection();
             URL url = new URL(urln);
             HttpsURLConnection client = (HttpsURLConnection) url.openConnection();
             client.setRequestProperty("Referer", LOGINURL);
