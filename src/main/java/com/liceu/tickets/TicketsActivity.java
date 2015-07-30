@@ -2,6 +2,7 @@ package com.liceu.tickets;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.FragmentManager;
 import android.app.ListActivity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -14,6 +15,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.app.ListFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ public class TicketsActivity extends Activity {
     private DrawerLayout drawerLayout;
     private ListView drawerList;
     List<String> list;
+    TicketsListFragment lfragment;
 
     @Override
     public void onCreate(Bundle savedInstance) {
@@ -35,6 +38,85 @@ public class TicketsActivity extends Activity {
 
         drawerList = (ListView) findViewById(R.id.left_drawer);
         drawerList.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list));
+
+        lfragment = new TicketsListFragment();
+        FragmentManager fragmentManager = getFragmentManager();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, lfragment)
+                .commit();
+    }
+
+    public static class TicketsListFragment extends ListFragment {
+
+        private TicketsApp tapp;
+
+        public TicketsListFragment() {
+            // Empty constructor
+        }
+
+
+        // Called when the activity is first created.
+        @Override
+        public void onActivityCreated(Bundle savedInstance) {
+            super.onActivityCreated(savedInstance);
+
+            tapp = (TicketsApp) getActivity().getApplication();
+            setMyListAdapter();
+
+            ListView lv = getListView();
+            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    Ticket t = (Ticket) getListView().getItemAtPosition(position);
+                    //executeViewTicketActivity(t.id);
+                }
+            });
+
+
+        }
+
+        private void setMyListAdapter() {
+            setListAdapter(new TicketAdapter(getActivity(), R.layout.ticklist_row, tapp.database.getTicketList()));
+        }
+
+
+
+        // ***********************************************************************
+        // Adapter class for displaying information about tickets in the main list
+        private class TicketAdapter extends ArrayAdapter {
+            private List tickets;
+
+            public TicketAdapter(Context context, int resId, List tickList) {
+                super(context, resId, tickList);
+                tickets = tickList;
+            }
+
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View v = convertView;
+                if (v == null) {
+                    LayoutInflater vi = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    v = vi.inflate(R.layout.ticklist_row, null);
+                }
+
+                Ticket tick = (Ticket) tickets.get(position);
+
+                TextView tt = (TextView) v.findViewById(R.id.ticktext);
+                TextView tu = (TextView) v.findViewById(R.id.tickuser);
+
+                String ttext;
+                if (tick.text.length() > 120)
+                    ttext = tick.text.substring(0, 120);
+                else
+                    ttext = tick.text;
+
+                tt.setText(ttext);
+                tu.setText(tick.user);
+
+                return v;
+            }
+        }
+
+
     }
 
 }
