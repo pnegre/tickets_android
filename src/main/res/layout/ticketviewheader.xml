@@ -83,7 +83,7 @@
 
 		<ImageButton
 			android:id="@+id/btclose"
-			android:src="@drawable/delete"
+			android:src="@drawable/thumb"
 			android:layout_width="wrap_content"
 			android:layout_height="60dp"
 			android:height="10dp"

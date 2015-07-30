@@ -21,7 +21,7 @@
     <application
         android:label="@string/app_name"
         android:icon="@drawable/bomb"
-        android:theme="@android:style/Theme.Holo.Light"
+        android:theme="@android:style/Theme.Material.Light"
         android:name="TicketsApp">
 
         <!--android:theme="@android:style/Theme.Light"-->
