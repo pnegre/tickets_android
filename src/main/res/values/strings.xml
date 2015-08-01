@@ -16,6 +16,7 @@
 	
 	<string name="menu_prefs">Preferències</string>
 	<string name="menu_refresh">Refresca</string>
+	<string name="menu_new">Nou Ticket</string>
 	
 	<string name="tick_sendcomm_button">Envia comentari</string>
 	<string name="tick_close_button">Tanca</string>
